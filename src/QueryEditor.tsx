@@ -1,27 +1,20 @@
-import React, { useMemo, useEffect, useState, useRef } from 'react';
+import React, { useMemo, useEffect, useState, useRef, useCallback } from 'react';
 import { GrafanaTheme2, QueryEditorProps, SelectableValue } from '@grafana/data';
 import { BigQueryDatasource } from './datasource';
-import { DEFAULT_REGION, PROCESSING_LOCATIONS, QUERY_FORMAT_OPTIONS } from './constants';
-import {
-  CustomScrollbar,
-  Field,
-  HorizontalGroup,
-  JSONFormatter,
-  Select,
-  Tab,
-  TabContent,
-  TabsBar,
-  Tooltip,
-  useTheme2,
-} from '@grafana/ui';
+import { DEFAULT_REGION, QUERY_FORMAT_OPTIONS } from './constants';
+import { CustomScrollbar, JSONFormatter, Select, Tab, TabContent, TabsBar, Tooltip, useTheme2 } from '@grafana/ui';
 import { QueryEditorRaw } from './QueryEditorRaw';
 import { DatasetSelector } from './components/DatasetSelector';
 import { TableSelector } from './components/TableSelector';
 import { BigQueryQueryNG } from './bigquery_query';
-import { BigQueryOptions, GoogleAuthType, QueryFormat } from './types';
+import { BigQueryOptions, EditorMode, GoogleAuthType, QueryFormat, QueryRowFilter } from './types';
 import { getApiClient, TableSchema } from './api';
 import { ProjectSelector } from 'components/ProjectSelector';
 import { useAsyncFn } from 'react-use';
+import QueryHeader from './components/QueryHeader';
+import { Space } from './components/ui/Space';
+import EditorRow from './components/ui/EditorRow';
+import EditorField from './components/ui/EditorField';
 
 type Props = QueryEditorProps<BigQueryDatasource, BigQueryQueryNG, BigQueryOptions>;
 
@@ -33,6 +26,7 @@ function applyQueryDefaults(q: BigQueryQueryNG, ds: BigQueryDatasource) {
   result.location = q.location || ds.jsonData.defaultRegion || DEFAULT_REGION;
   result.format = q.format !== undefined ? q.format : QueryFormat.Table;
   result.rawSql = q.rawSql || '';
+  result.editorMode = q.editorMode || EditorMode.Builder;
 
   return result;
 }
@@ -40,12 +34,18 @@ function applyQueryDefaults(q: BigQueryQueryNG, ds: BigQueryDatasource) {
 const isQueryValid = (q: BigQueryQueryNG) => {
   return Boolean(q.location && q.project && q.dataset && q.table && q.rawSql);
 };
+
 export function QueryEditor(props: Props) {
   const schemaCache = useRef(new Map<string, TableSchema>());
-  const queryWithDefaults = applyQueryDefaults(props.query, props.datasource);
   const apiClient = useMemo(() => getApiClient(props.datasource.id), [props.datasource]);
   const [isSchemaOpen, setIsSchemaOpen] = useState(false);
   const theme: GrafanaTheme2 = useTheme2();
+  const [queryRowFilter, setQueryRowFilter] = useState<QueryRowFilter>({
+    filter: false,
+    group: false,
+    order: false,
+    preview: true,
+  });
 
   const [fetchTableSchemaState, fetchTableSchema] = useAsyncFn(async (q: BigQueryQueryNG) => {
     if (!Boolean(q.location && q.project && q.dataset && q.table)) {
@@ -77,12 +77,6 @@ export function QueryEditor(props: Props) {
 
   const onFormatChange = (e: SelectableValue) => {
     const next = { ...props.query, format: e.value || QueryFormat.Timeseries };
-    props.onChange(next);
-    processQuery(next);
-  };
-
-  const onLocationChange = (e: SelectableValue) => {
-    const next = { ...props.query, location: e.value || DEFAULT_REGION };
     props.onChange(next);
     processQuery(next);
   };
@@ -134,18 +128,29 @@ export function QueryEditor(props: Props) {
 
   return (
     <>
-      <HorizontalGroup>
-        <Field label="Processing location">
+      <QueryHeader
+        onChange={props.onChange}
+        onRunQuery={props.onRunQuery}
+        onQueryRowChange={setQueryRowFilter}
+        queryRowFilter={queryRowFilter}
+        query={queryWithDefaults()}
+        sqlCodeEditorIsDirty={false}
+      />
+
+      <Space v={0.5} />
+
+      <EditorRow>
+        <EditorField label="Format" width={12}>
           <Select
-            options={PROCESSING_LOCATIONS}
-            value={queryWithDefaults().location}
-            onChange={onLocationChange}
+            options={QUERY_FORMAT_OPTIONS}
+            value={queryWithDefaults().format}
+            onChange={onFormatChange}
             className="width-12"
           />
-        </Field>
+        </EditorField>
 
         {props.datasource.jsonData.authenticationType === GoogleAuthType.GCE && (
-          <Field label="Project">
+          <EditorField label="Project" width={12}>
             <ProjectSelector
               apiClient={apiClient}
               projectId={queryWithDefaults().project!}
@@ -153,10 +158,10 @@ export function QueryEditor(props: Props) {
               onChange={onProjectChange}
               className="width-12"
             />
-          </Field>
+          </EditorField>
         )}
 
-        <Field label="Dataset">
+        <EditorField label="Dataset" width={12}>
           <DatasetSelector
             apiClient={apiClient}
             projectId={queryWithDefaults().project!}
@@ -165,9 +170,9 @@ export function QueryEditor(props: Props) {
             onChange={onDatasetChange}
             className="width-12"
           />
-        </Field>
+        </EditorField>
 
-        <Field label="Table">
+        <EditorField label="Table">
           <TableSelector
             apiClient={apiClient}
             projectId={queryWithDefaults().project!}
@@ -179,45 +184,40 @@ export function QueryEditor(props: Props) {
             className="width-12"
             applyDefault
           />
-        </Field>
+        </EditorField>
+      </EditorRow>
 
-        <Field label="Format as">
-          <Select
-            options={QUERY_FORMAT_OPTIONS}
-            value={queryWithDefaults().format}
-            onChange={onFormatChange}
-            className="width-12"
-          />
-        </Field>
-      </HorizontalGroup>
+      {queryWithDefaults().editorMode === EditorMode.Code && (
+        <>
+          <TabsBar>
+            <Tab label={'Query'} active={!isSchemaOpen} onChangeTab={() => setIsSchemaOpen(false)} />
+            {queryWithDefaults().table ? schemaTab : <Tooltip content={'Choose table first'}>{schemaTab}</Tooltip>}
+          </TabsBar>
 
-      <TabsBar>
-        <Tab label={'Query'} active={!isSchemaOpen} onChangeTab={() => setIsSchemaOpen(false)} />
-        {queryWithDefaults().table ? schemaTab : <Tooltip content={'Choose table first'}>{schemaTab}</Tooltip>}
-      </TabsBar>
-
-      <TabContent>
-        {!isSchemaOpen && (
-          <QueryEditorRaw query={queryWithDefaults()} onChange={props.onChange} onRunQuery={props.onRunQuery} />
-        )}
-        {isSchemaOpen && (
-          <div
-            style={{
-              height: '300px',
-              padding: `${theme.spacing(1)}`,
-              marginBottom: `${theme.spacing(1)}`,
-              border: `1px solid ${theme.colors.border.medium}`,
-              overflow: 'auto',
-            }}
-          >
-            {fetchTableSchemaState.value && fetchTableSchemaState.value.schema && props.query.table && (
-              <CustomScrollbar>
-                <JSONFormatter json={fetchTableSchemaState.value.schema} open={2} />
-              </CustomScrollbar>
+          <TabContent>
+            {!isSchemaOpen && (
+              <QueryEditorRaw query={queryWithDefaults()} onChange={props.onChange} onRunQuery={props.onRunQuery} />
             )}
-          </div>
-        )}
-      </TabContent>
+            {isSchemaOpen && (
+              <div
+                style={{
+                  height: '300px',
+                  padding: `${theme.spacing(1)}`,
+                  marginBottom: `${theme.spacing(1)}`,
+                  border: `1px solid ${theme.colors.border.medium}`,
+                  overflow: 'auto',
+                }}
+              >
+                {fetchTableSchemaState.value && fetchTableSchemaState.value.schema && props.query.table && (
+                  <CustomScrollbar>
+                    <JSONFormatter json={fetchTableSchemaState.value.schema} open={2} />
+                  </CustomScrollbar>
+                )}
+              </div>
+            )}
+          </TabContent>
+        </>
+      )}
     </>
   );
 }

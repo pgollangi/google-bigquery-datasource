@@ -11,6 +11,18 @@ export enum QueryPriority {
   Batch = 'BATCH',
 }
 
+export enum EditorMode {
+  'Builder',
+  'Code',
+}
+
+export interface QueryRowFilter {
+  filter: boolean;
+  group: boolean;
+  order: boolean;
+  preview: boolean;
+}
+
 export interface BigQueryOptions extends DataSourceJsonData {
   authenticationType: GoogleAuthType;
   flatRateProject?: string;

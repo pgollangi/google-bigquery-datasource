@@ -12,7 +12,7 @@ import {
   convertToUtc,
   getInterval,
 } from 'utils';
-import { GroupType, QueryFormat, QueryPriority } from 'types';
+import { EditorMode, GroupType, QueryFormat, QueryPriority } from './types';
 
 export interface BigQueryQueryNG extends DataQuery {
   dataset?: string;
@@ -36,6 +36,7 @@ export interface BigQueryQueryNG extends DataQuery {
   table?: string;
   queryPriority?: QueryPriority;
   timeShift?: string;
+  editorMode?: EditorMode;
 }
 
 export default class BigQueryQuery {
