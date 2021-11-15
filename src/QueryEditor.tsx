@@ -61,9 +61,13 @@ export function QueryEditor(props: Props) {
     return schema;
   }, []);
 
+  const queryWithDefaults = useCallback(() => {
+    return applyQueryDefaults(props.query, props.datasource);
+  }, [props.datasource, props.query]);
+
   useEffect(() => {
-    fetchTableSchema(queryWithDefaults);
-  }, [fetchTableSchema]);
+    fetchTableSchema(queryWithDefaults());
+  }, [fetchTableSchema, queryWithDefaults]);
 
   const processQuery = (q: BigQueryQueryNG) => {
     if (isQueryValid(q)) {
@@ -85,7 +89,7 @@ export function QueryEditor(props: Props) {
 
   const onProjectChange = (e: SelectableValue) => {
     props.onChange({
-      ...queryWithDefaults,
+      ...queryWithDefaults(),
       project: e.value,
       dataset: undefined,
       table: undefined,
@@ -94,7 +98,7 @@ export function QueryEditor(props: Props) {
 
   const onDatasetChange = (e: SelectableValue) => {
     const next = {
-      ...queryWithDefaults,
+      ...queryWithDefaults(),
       dataset: e.value,
       table: undefined,
     };
@@ -106,7 +110,7 @@ export function QueryEditor(props: Props) {
 
   const onTableChange = (e: SelectableValue) => {
     const next = {
-      ...queryWithDefaults,
+      ...queryWithDefaults(),
       table: e.value,
     };
     props.onChange(next);
@@ -119,7 +123,7 @@ export function QueryEditor(props: Props) {
       label="Table schema"
       active={isSchemaOpen}
       onChangeTab={() => {
-        if (!Boolean(queryWithDefaults.table)) {
+        if (!Boolean(queryWithDefaults().table)) {
           return;
         }
         setIsSchemaOpen(true);
@@ -134,7 +138,7 @@ export function QueryEditor(props: Props) {
         <Field label="Processing location">
           <Select
             options={PROCESSING_LOCATIONS}
-            value={queryWithDefaults.location}
+            value={queryWithDefaults().location}
             onChange={onLocationChange}
             className="width-12"
           />
@@ -144,8 +148,8 @@ export function QueryEditor(props: Props) {
           <Field label="Project">
             <ProjectSelector
               apiClient={apiClient}
-              projectId={queryWithDefaults.project!}
-              location={queryWithDefaults.location!}
+              projectId={queryWithDefaults().project!}
+              location={queryWithDefaults().location!}
               onChange={onProjectChange}
               className="width-12"
             />
@@ -155,9 +159,9 @@ export function QueryEditor(props: Props) {
         <Field label="Dataset">
           <DatasetSelector
             apiClient={apiClient}
-            projectId={queryWithDefaults.project!}
-            location={queryWithDefaults.location!}
-            value={queryWithDefaults.dataset}
+            projectId={queryWithDefaults().project!}
+            location={queryWithDefaults().location!}
+            value={queryWithDefaults().dataset}
             onChange={onDatasetChange}
             className="width-12"
           />
@@ -166,11 +170,11 @@ export function QueryEditor(props: Props) {
         <Field label="Table">
           <TableSelector
             apiClient={apiClient}
-            projectId={queryWithDefaults.project!}
-            location={queryWithDefaults.location!}
-            dataset={queryWithDefaults.dataset!}
-            value={queryWithDefaults.table}
-            disabled={queryWithDefaults.dataset === undefined}
+            projectId={queryWithDefaults().project!}
+            location={queryWithDefaults().location!}
+            dataset={queryWithDefaults().dataset!}
+            value={queryWithDefaults().table}
+            disabled={queryWithDefaults().dataset === undefined}
             onChange={onTableChange}
             className="width-12"
             applyDefault
@@ -180,7 +184,7 @@ export function QueryEditor(props: Props) {
         <Field label="Format as">
           <Select
             options={QUERY_FORMAT_OPTIONS}
-            value={queryWithDefaults.format}
+            value={queryWithDefaults().format}
             onChange={onFormatChange}
             className="width-12"
           />
@@ -189,12 +193,12 @@ export function QueryEditor(props: Props) {
 
       <TabsBar>
         <Tab label={'Query'} active={!isSchemaOpen} onChangeTab={() => setIsSchemaOpen(false)} />
-        {queryWithDefaults.table ? schemaTab : <Tooltip content={'Choose table first'}>{schemaTab}</Tooltip>}
+        {queryWithDefaults().table ? schemaTab : <Tooltip content={'Choose table first'}>{schemaTab}</Tooltip>}
       </TabsBar>
 
       <TabContent>
         {!isSchemaOpen && (
-          <QueryEditorRaw query={queryWithDefaults} onChange={props.onChange} onRunQuery={props.onRunQuery} />
+          <QueryEditorRaw query={queryWithDefaults()} onChange={props.onChange} onRunQuery={props.onRunQuery} />
         )}
         {isSchemaOpen && (
           <div
