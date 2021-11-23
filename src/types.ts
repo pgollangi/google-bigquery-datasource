@@ -31,7 +31,6 @@ export interface BigQueryOptions extends DataSourceJsonData {
   tokenUri?: string;
   clientEmail?: string;
   defaultProject?: string;
-  defaultDataset?: string;
 }
 
 export interface BigQuerySecureJsonData {
@@ -52,7 +51,6 @@ export interface QueryModel extends DataQuery {
   rawSql: string;
   format: QueryFormat;
   connectionArgs: {
-    project: string;
     dataset: string;
     table: string;
     location: string;
@@ -62,7 +60,6 @@ export interface QueryModel extends DataQuery {
 export interface ResourceSelectorProps {
   apiClient: BigQueryAPI;
   location: string;
-  projectId: string;
   disabled?: boolean;
   className?: string;
   applyDefault?: boolean;

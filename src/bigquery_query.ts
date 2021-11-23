@@ -16,6 +16,8 @@ import { EditorMode, GroupType, QueryFormat, QueryPriority } from './types';
 
 export interface BigQueryQueryNG extends DataQuery {
   dataset?: string;
+  table?: string;
+
   format: QueryFormat;
   orderByCol?: string;
   orderBySort?: string;
@@ -32,8 +34,6 @@ export interface BigQueryQueryNG extends DataQuery {
   partitionedField?: string;
   convertToUTC?: boolean;
   sharded?: boolean;
-  project?: string;
-  table?: string;
   queryPriority?: QueryPriority;
   timeShift?: string;
   editorMode?: EditorMode;
@@ -466,7 +466,7 @@ export default class BigQueryQuery {
         outerGroupBy = outerGroupBy + ',' + i;
       }
     }
-    query += '\nFROM ' + '`' + this.target.project + '.' + this.target.dataset + '.' + this.target.table + '`';
+    query += '\nFROM ' + '`' + this.target.dataset + '.' + this.target.table + '`';
 
     query += this.buildWhereClause();
     query += this.buildGroupClause();
