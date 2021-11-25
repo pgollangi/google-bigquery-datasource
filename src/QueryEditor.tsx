@@ -11,9 +11,7 @@ import { BigQueryOptions, EditorMode, QueryFormat, QueryRowFilter } from './type
 import { getApiClient, TableSchema } from './api';
 import { useAsync, useAsyncFn } from 'react-use';
 import QueryHeader from './components/QueryHeader';
-import { Space } from './components/ui/Space';
-import EditorRow from './components/ui/EditorRow';
-import EditorField from './components/ui/EditorField';
+import { Space, EditorRow, EditorField } from '@grafana/experimental';
 
 type Props = QueryEditorProps<BigQueryDatasource, BigQueryQueryNG, BigQueryOptions>;
 
@@ -35,11 +33,10 @@ const isQueryValid = (q: BigQueryQueryNG) => {
 
 export function QueryEditor(props: Props) {
   const schemaCache = useRef(new Map<string, TableSchema>());
-  const {
-    loading: apiLoading,
-    error: apiError,
-    value: apiClient,
-  } = useAsync(async () => await getApiClient(props.datasource.id), [props.datasource]);
+  const { loading: apiLoading, error: apiError, value: apiClient } = useAsync(
+    async () => await getApiClient(props.datasource.id),
+    [props.datasource]
+  );
 
   const [isSchemaOpen, setIsSchemaOpen] = useState(false);
   const theme: GrafanaTheme2 = useTheme2();

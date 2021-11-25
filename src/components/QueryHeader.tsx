@@ -3,9 +3,7 @@ import React, { useCallback, useState } from 'react';
 import { BigQueryQueryNG } from '../bigquery_query';
 import { DEFAULT_REGION, PROCESSING_LOCATIONS } from '../constants';
 import { EditorMode, QueryRowFilter } from '../types';
-import EditorHeader from './ui/EditorHeader';
-import FlexItem from './ui/FlexItem';
-import InlineSelect from './ui/InlineSelect';
+import { EditorHeader, FlexItem, InlineSelect } from '@grafana/experimental';
 
 interface QueryHeaderProps {
   query: BigQueryQueryNG;
