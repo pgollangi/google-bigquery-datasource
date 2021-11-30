@@ -57,10 +57,46 @@ export interface QueryModel extends DataQuery {
   };
 }
 
+export interface SQLExpression {
+  columns?: string[];
+  from?: string;
+  where?: string;
+  groupBy?: string;
+  orderBy?: string;
+  orderByDirection?: string;
+  limit?: number;
+}
+
 export interface ResourceSelectorProps {
   apiClient: BigQueryAPI;
   location: string;
   disabled?: boolean;
   className?: string;
   applyDefault?: boolean;
+}
+
+export interface BigQueryQueryNG extends DataQuery {
+  dataset?: string;
+  table?: string;
+
+  format: QueryFormat;
+  orderByCol?: string;
+  orderBySort?: string;
+  location?: string;
+  timeColumn: string;
+  timeColumnType?: 'TIMESTAMP' | 'DATE' | 'DATETIME' | 'int4';
+  metricColumn: string;
+  group?: Array<{ type: GroupType; params: string[] }>;
+  where?: any[];
+  select?: any[];
+  rawQuery?: boolean;
+  rawSql: string;
+  partitioned?: boolean;
+  partitionedField?: string;
+  convertToUTC?: boolean;
+  sharded?: boolean;
+  queryPriority?: QueryPriority;
+  timeShift?: string;
+  editorMode?: EditorMode;
+  sql?: SQLExpression;
 }

@@ -6,8 +6,7 @@ import { CustomScrollbar, JSONFormatter, Select, Tab, TabContent, TabsBar, Toolt
 import { QueryEditorRaw } from './QueryEditorRaw';
 import { DatasetSelector } from './components/DatasetSelector';
 import { TableSelector } from './components/TableSelector';
-import { BigQueryQueryNG } from './bigquery_query';
-import { BigQueryOptions, EditorMode, QueryFormat, QueryRowFilter } from './types';
+import { BigQueryOptions, EditorMode, QueryFormat, QueryRowFilter, BigQueryQueryNG } from './types';
 import { getApiClient, TableSchema } from './api';
 import { useAsync, useAsyncFn } from 'react-use';
 import QueryHeader from './components/QueryHeader';

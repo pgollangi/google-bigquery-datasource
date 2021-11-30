@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import BigQueryQuery, { BigQueryQueryNG } from './bigquery_query';
+import BigQueryQuery from './bigquery_query';
 import { map } from 'rxjs/operators';
 import ResponseParser, { ResultFormat } from './ResponseParser';
-import { BigQueryOptions, GoogleAuthType, QueryFormat, QueryModel, QueryPriority } from './types';
+import { BigQueryOptions, GoogleAuthType, QueryFormat, QueryModel, QueryPriority, BigQueryQueryNG } from './types';
 import { v4 as generateID } from 'uuid';
 import { DataSourceInstanceSettings, ScopedVars, VariableModel } from '@grafana/data';
 import { DataSourceWithBackend, FetchResponse, getBackendSrv, getTemplateSrv } from '@grafana/runtime';

@@ -1,8 +1,7 @@
 import { Button, ConfirmModal, InlineSwitch, RadioButtonGroup } from '@grafana/ui';
 import React, { useCallback, useState } from 'react';
-import { BigQueryQueryNG } from '../bigquery_query';
 import { DEFAULT_REGION, PROCESSING_LOCATIONS } from '../constants';
-import { EditorMode, QueryRowFilter } from '../types';
+import { BigQueryQueryNG, EditorMode, QueryRowFilter } from '../types';
 import { EditorHeader, FlexItem, InlineSelect } from '@grafana/experimental';
 
 interface QueryHeaderProps {

@@ -1,5 +1,5 @@
 import { DataQueryRequest, dateTime, DurationUnit } from '@grafana/data';
-import { BigQueryQueryNG } from 'bigquery_query';
+import { BigQueryQueryNG } from 'types';
 import SqlParser from 'sql_parser';
 
 export const SHIFTED = '_shifted';

@@ -1,8 +1,7 @@
 import { MetricFindValue } from '@grafana/data';
 import { FetchResponse } from '@grafana/runtime';
-import { BigQueryQueryNG } from 'bigquery_query';
 import ResponseParser from 'ResponseParser';
-import { QueryFormat } from 'types';
+import { BigQueryQueryNG, QueryFormat } from 'types';
 
 describe('ResponseParser', () => {
   it('transformAnnotationResponse empty results with 0 rows', async () => {

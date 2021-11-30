@@ -1,7 +1,7 @@
 import React from 'react';
 import { CodeEditor } from '@grafana/ui';
 // import { getTemplateSrv } from '@grafana/runtime';
-import { BigQueryQueryNG } from './bigquery_query';
+import { BigQueryQueryNG } from 'types';
 // import { buildGetSuggestions } from 'Suggestions';
 
 type Props = {

@@ -2,8 +2,7 @@ import { ArrayVector, DataFrame, Field, FieldType, MetricFindValue } from '@graf
 import BQTypes from '@google-cloud/bigquery/build/src/types';
 import _ from 'lodash';
 import { FetchResponse } from '@grafana/runtime';
-import { BigQueryQueryNG } from 'bigquery_query';
-import { QueryFormat } from 'types';
+import { QueryFormat, BigQueryQueryNG } from 'types';
 
 // API interfaces
 export interface ResultFormat {
