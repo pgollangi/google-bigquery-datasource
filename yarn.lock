@@ -1191,10 +1191,10 @@
     prettier "2.2.1"
     typescript "4.3.4"
 
-"@grafana/experimental@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@grafana/experimental/-/experimental-0.0.1.tgz#eb47a40cfc1a7815561c1d1a71e8e69b80752976"
-  integrity sha512-2RMoUdOpPQtb+U17WHCvzxmpZ15HeTcfvjlCpV7Zl3nUqSpT/WOg8/SaElbD3rklPfYZjTnQTh+tVeboMVTPVg==
+"@grafana/experimental@canary":
+  version "0.0.1-pre-ba33f35900"
+  resolved "https://registry.yarnpkg.com/@grafana/experimental/-/experimental-0.0.1-pre-ba33f35900.tgz#d85395a36e744d41b6819bc75441cf26a2d2d8b5"
+  integrity sha512-w27sbCiaPRH683K/+9X05AEC4L3JfLP1Uk1YkXO0ft4EVe3Rzs069OCBn5tJrR3da9Np5ivLG1i3TFsj2NDOYA==
 
 "@grafana/runtime@canary":
   version "8.4.0-pre-2863af3bc3"
