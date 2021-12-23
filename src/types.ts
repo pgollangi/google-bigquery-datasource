@@ -1,5 +1,6 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 import { BigQueryAPI } from 'api';
+import { applyQueryDefaults } from 'utils';
 
 export enum GoogleAuthType {
   JWT = 'jwt',
@@ -100,3 +101,5 @@ export interface BigQueryQueryNG extends DataQuery {
   editorMode?: EditorMode;
   sql?: SQLExpression;
 }
+
+export type QueryWithDefaults = ReturnType<typeof applyQueryDefaults>;

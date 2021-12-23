@@ -1,6 +1,8 @@
 import { DataQueryRequest, dateTime, DurationUnit } from '@grafana/data';
-import { BigQueryQueryNG } from 'types';
+import { BigQueryDatasource } from 'datasource';
 import SqlParser from 'sql_parser';
+import { BigQueryQueryNG, EditorMode, QueryFormat } from 'types';
+import { DEFAULT_REGION } from './constants';
 
 export const SHIFTED = '_shifted';
 
@@ -250,3 +252,24 @@ export function replaceTimeShift(q: string) {
 export function convertToUtc(d: Date) {
   return new Date(d.getTime() + d.getTimezoneOffset() * 60000);
 }
+
+export function applyQueryDefaults(q: BigQueryQueryNG, ds: BigQueryDatasource) {
+  const result = {
+    ...q,
+    dataset: q.dataset || '',
+    location: q.location || ds.jsonData.defaultRegion || DEFAULT_REGION,
+    format: q.format !== undefined ? q.format : QueryFormat.Table,
+    rawSql: q.rawSql || '',
+    editorMode: q.editorMode || EditorMode.Builder,
+    sql: q.sql || {
+      columns: [],
+      where: undefined,
+    },
+  };
+
+  return result;
+}
+
+export const isQueryValid = (q: BigQueryQueryNG) => {
+  return Boolean(q.location && q.dataset && q.table && q.rawSql);
+};
