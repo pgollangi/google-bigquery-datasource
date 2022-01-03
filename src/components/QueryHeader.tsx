@@ -1,13 +1,12 @@
+import { SelectableValue } from '@grafana/data';
+import { EditorField, EditorHeader, EditorRow, FlexItem, InlineSelect, Space } from '@grafana/experimental';
 import { Button, ConfirmModal, InlineSwitch, RadioButtonGroup, Select } from '@grafana/ui';
+import { BigQueryAPI } from 'api';
 import React, { useCallback, useState } from 'react';
 import { DEFAULT_REGION, PROCESSING_LOCATIONS, QUERY_FORMAT_OPTIONS } from '../constants';
 import { BigQueryQueryNG, EditorMode, QueryFormat, QueryRowFilter, QueryWithDefaults } from '../types';
-import { EditorField, EditorHeader, EditorRow, FlexItem, InlineSelect, Space } from '@grafana/experimental';
 import { DatasetSelector } from './DatasetSelector';
 import { TableSelector } from './TableSelector';
-import { isQueryValid } from 'utils';
-import { SelectableValue } from '@grafana/data';
-import { BigQueryAPI } from 'api';
 
 interface QueryHeaderProps {
   query: QueryWithDefaults;
@@ -47,16 +46,9 @@ const QueryHeader: React.FC<QueryHeaderProps> = ({
     [sqlCodeEditorIsDirty, editorMode, onChange, query]
   );
 
-  const processQuery = (q: BigQueryQueryNG) => {
-    if (isQueryValid(q) && onRunQuery) {
-      onRunQuery();
-    }
-  };
-
   const onFormatChange = (e: SelectableValue) => {
     const next = { ...query, format: e.value !== undefined ? e.value : QueryFormat.Table };
     onChange(next);
-    processQuery(next);
   };
 
   const onDatasetChange = (e: SelectableValue) => {
@@ -67,7 +59,6 @@ const QueryHeader: React.FC<QueryHeaderProps> = ({
     };
 
     onChange(next);
-    processQuery(next);
   };
 
   const onTableChange = (e: SelectableValue) => {
@@ -76,7 +67,6 @@ const QueryHeader: React.FC<QueryHeaderProps> = ({
       table: e.value,
     };
     onChange(next);
-    processQuery(next);
   };
 
   return (

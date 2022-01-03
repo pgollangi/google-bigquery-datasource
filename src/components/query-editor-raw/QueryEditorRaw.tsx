@@ -32,7 +32,7 @@ export function QueryEditorRaw({
 
   const processQuery = useCallback(
     (q: BigQueryQueryNG) => {
-      if (isQueryValid(q)) {
+      if (isQueryValid(q) && onRunQuery) {
         onRunQuery();
       }
     },

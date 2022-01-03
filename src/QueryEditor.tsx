@@ -3,9 +3,9 @@ import { EditorField, EditorRow, EditorRows, Space } from '@grafana/experimental
 import { CodeEditor } from '@grafana/ui';
 import { CodeEditor as RawCodeEditor } from 'components/CodeEditor';
 import { SQLBuilderSelectRow } from 'components/SQLBuilderSelectRow';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAsync } from 'react-use';
-import { applyQueryDefaults } from 'utils';
+import { applyQueryDefaults, isQueryValid } from 'utils';
 import { getApiClient } from './api';
 import QueryHeader from './components/QueryHeader';
 import { BigQueryDatasource } from './datasource';
@@ -13,10 +13,10 @@ import { BigQueryOptions, BigQueryQueryNG, EditorMode, QueryRowFilter } from './
 
 type Props = QueryEditorProps<BigQueryDatasource, BigQueryQueryNG, BigQueryOptions>;
 
-export function QueryEditor(props: Props) {
+export function QueryEditor({ datasource, query, onChange, onRunQuery }: Props) {
   const { loading: apiLoading, error: apiError, value: apiClient } = useAsync(
-    async () => await getApiClient(props.datasource.id),
-    [props.datasource]
+    async () => await getApiClient(datasource.id),
+    [datasource]
   );
 
   const [queryRowFilter, setQueryRowFilter] = useState<QueryRowFilter>({
@@ -26,13 +26,27 @@ export function QueryEditor(props: Props) {
     preview: true,
   });
 
-  const queryWithDefaults = applyQueryDefaults(props.query, props.datasource);
+  const queryWithDefaults = applyQueryDefaults(query, datasource);
 
   useEffect(() => {
     return () => {
-      getApiClient(props.datasource.id).then((client) => client.dispose());
+      getApiClient(datasource.id).then((client) => client.dispose());
     };
-  }, [props.datasource.id]);
+  }, [datasource.id]);
+
+  const processQuery = useCallback(
+    (q: BigQueryQueryNG) => {
+      if (isQueryValid(q) && onRunQuery) {
+        onRunQuery();
+      }
+    },
+    [onRunQuery]
+  );
+
+  const onColumnsChange = (q: BigQueryQueryNG) => {
+    onChange(q);
+    processQuery(q);
+  };
 
   if (apiLoading || apiError || !apiClient) {
     return null;
@@ -41,8 +55,8 @@ export function QueryEditor(props: Props) {
   return (
     <>
       <QueryHeader
-        onChange={props.onChange}
-        onRunQuery={props.onRunQuery}
+        onChange={onChange}
+        onRunQuery={onRunQuery}
         onQueryRowChange={setQueryRowFilter}
         queryRowFilter={queryRowFilter}
         query={queryWithDefaults}
@@ -57,7 +71,7 @@ export function QueryEditor(props: Props) {
         <EditorRows>
           <EditorRow>
             <EditorField label="Column">
-              <SQLBuilderSelectRow query={queryWithDefaults} onQueryChange={props.onChange} apiClient={apiClient} />
+              <SQLBuilderSelectRow query={queryWithDefaults} onQueryChange={onColumnsChange} apiClient={apiClient} />
             </EditorField>
           </EditorRow>
           {queryRowFilter.preview && queryWithDefaults.rawSql && (
@@ -75,8 +89,8 @@ export function QueryEditor(props: Props) {
         <RawCodeEditor
           apiClient={apiClient}
           queryWithDefaults={queryWithDefaults}
-          onChange={props.onChange}
-          onRunQuery={props.onRunQuery}
+          onChange={onChange}
+          onRunQuery={onRunQuery}
         />
       )}
     </>
