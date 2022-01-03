@@ -4,7 +4,7 @@ import { Select } from '@grafana/ui';
 import { BigQueryAPI } from 'api';
 import React from 'react';
 import { useAsync } from 'react-use';
-import { toRawSql } from 'sql.utils';
+// import { toRawSql } from 'sql.utils';
 import { BigQueryQueryNG, QueryWithDefaults } from '../types';
 
 interface SQLBuilderSelectRowProps {
@@ -23,13 +23,13 @@ export function SQLBuilderSelectRow({ query, apiClient, onQueryChange }: SQLBuil
   }, [apiClient, query.dataset, query.location, query.table]);
 
   return (
-    <EditorList
+    <EditorList<string>
       items={query.sql.columns!}
       onChange={(item) => {
         onQueryChange({
           ...query,
           sql: { ...query.sql, columns: item },
-          rawSql: toRawSql(query.sql),
+          // rawSql: toRawSql(query.sql),
         });
       }}
       renderItem={makeRenderColumn({

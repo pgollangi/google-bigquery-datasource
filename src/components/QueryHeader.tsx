@@ -168,36 +168,45 @@ const QueryHeader: React.FC<QueryHeaderProps> = ({
         />
       </EditorHeader>
 
-      <Space v={0.5} />
+      {editorMode === EditorMode.Builder && (
+        <>
+          <Space v={0.5} />
 
-      <EditorRow>
-        <EditorField label="Format" width={12}>
-          <Select options={QUERY_FORMAT_OPTIONS} value={query.format} onChange={onFormatChange} className="width-12" />
-        </EditorField>
+          <EditorRow>
+            <EditorField label="Format" width={12}>
+              <Select
+                options={QUERY_FORMAT_OPTIONS}
+                value={query.format}
+                onChange={onFormatChange}
+                className="width-12"
+              />
+            </EditorField>
 
-        <EditorField label="Dataset" width={12}>
-          <DatasetSelector
-            apiClient={apiClient}
-            location={query.location}
-            value={query.dataset}
-            onChange={onDatasetChange}
-            className="width-12"
-          />
-        </EditorField>
+            <EditorField label="Dataset" width={12}>
+              <DatasetSelector
+                apiClient={apiClient}
+                location={query.location}
+                value={query.dataset}
+                onChange={onDatasetChange}
+                className="width-12"
+              />
+            </EditorField>
 
-        <EditorField label="Table">
-          <TableSelector
-            apiClient={apiClient}
-            location={query.location}
-            dataset={query.dataset}
-            value={query.table}
-            disabled={query.dataset === undefined}
-            onChange={onTableChange}
-            className="width-12"
-            applyDefault
-          />
-        </EditorField>
-      </EditorRow>
+            <EditorField label="Table">
+              <TableSelector
+                apiClient={apiClient}
+                location={query.location}
+                dataset={query.dataset}
+                value={query.table}
+                disabled={query.dataset === undefined}
+                onChange={onTableChange}
+                className="width-12"
+                applyDefault
+              />
+            </EditorField>
+          </EditorRow>
+        </>
+      )}
     </>
   );
 };

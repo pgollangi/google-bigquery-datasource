@@ -271,5 +271,5 @@ export function applyQueryDefaults(q: BigQueryQueryNG, ds: BigQueryDatasource) {
 }
 
 export const isQueryValid = (q: BigQueryQueryNG) => {
-  return Boolean(q.location && q.dataset && q.table && q.rawSql);
+  return Boolean(q.location && q.rawSql);
 };

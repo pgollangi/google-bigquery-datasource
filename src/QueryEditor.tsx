@@ -3,7 +3,7 @@ import { EditorField, EditorRow, EditorRows, Space } from '@grafana/experimental
 import { CodeEditor } from '@grafana/ui';
 import { CodeEditor as RawCodeEditor } from 'components/CodeEditor';
 import { SQLBuilderSelectRow } from 'components/SQLBuilderSelectRow';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAsync } from 'react-use';
 import { applyQueryDefaults } from 'utils';
 import { getApiClient } from './api';
@@ -28,6 +28,12 @@ export function QueryEditor(props: Props) {
 
   const queryWithDefaults = applyQueryDefaults(props.query, props.datasource);
 
+  useEffect(() => {
+    return () => {
+      getApiClient(props.datasource.id).then((client) => client.dispose());
+    };
+  }, [props.datasource.id]);
+
   if (apiLoading || apiError || !apiClient) {
     return null;
   }
@@ -40,6 +46,7 @@ export function QueryEditor(props: Props) {
         onQueryRowChange={setQueryRowFilter}
         queryRowFilter={queryRowFilter}
         query={queryWithDefaults}
+        // TODO: add proper dirty check
         sqlCodeEditorIsDirty={!!queryWithDefaults.sql.columns?.length}
         apiClient={apiClient}
       />

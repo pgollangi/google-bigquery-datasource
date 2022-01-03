@@ -1,10 +1,8 @@
-import { GrafanaTheme2 } from '@grafana/data';
-import { CustomScrollbar, JSONFormatter, Tab, TabContent, TabsBar, Tooltip, useTheme2 } from '@grafana/ui';
-import { BigQueryAPI, TableSchema } from 'api';
-import { QueryEditorRaw } from 'QueryEditorRaw';
-import React, { useRef, useState, useEffect } from 'react';
-import { useAsyncFn } from 'react-use';
+import { BigQueryAPI } from 'api';
+import { QueryEditorRaw } from './query-editor-raw/QueryEditorRaw';
+import React, { useCallback } from 'react';
 import { BigQueryQueryNG, QueryWithDefaults } from 'types';
+import { getColumnInfoFromSchema } from 'utils/getColumnInfoFromSchema';
 
 export function CodeEditor({
   apiClient,
@@ -17,73 +15,74 @@ export function CodeEditor({
   onChange: (query: BigQueryQueryNG) => void;
   onRunQuery: () => void;
 }) {
-  const schemaCache = useRef(new Map<string, TableSchema>());
+  const getColumns = useCallback(
+    // expects fully qualified table name: <project-id>.<dataset-id>.<table-id>
+    async (t: string) => {
+      if (!apiClient || !queryWithDefaults.location) {
+        return [];
+      }
+      let cols;
+      const tablePath = t.split('.');
 
-  const [fetchTableSchemaState, fetchTableSchema] = useAsyncFn(
-    async (l?: string, d?: string, t?: string) => {
-      if (!Boolean(l && d && t) || !apiClient) {
-        return null;
+      if (tablePath.length === 3) {
+        cols = await apiClient.getColumns(queryWithDefaults.location, tablePath[1], tablePath[2]);
+      } else {
+        if (!queryWithDefaults.dataset) {
+          return [];
+        }
+        cols = await apiClient.getColumns(queryWithDefaults.location, queryWithDefaults.dataset, t!);
       }
 
-      if (schemaCache.current?.has(t!)) {
-        return schemaCache.current?.get(t!);
+      if (cols.length > 0) {
+        const schema = await apiClient.getTableSchema(queryWithDefaults.location, tablePath[1], tablePath[2]);
+        return cols.map((c) => {
+          const cInfo = schema.schema ? getColumnInfoFromSchema(c, schema.schema) : null;
+          return { name: c, ...cInfo };
+        });
+      } else {
+        return [];
       }
-      const schema = await apiClient.getTableSchema(l!, d!, t!);
-      schemaCache.current.set(t!, schema);
-      return schema;
     },
-    [apiClient]
+    [apiClient, queryWithDefaults.location, queryWithDefaults.dataset]
   );
 
-  useEffect(() => {
-    if (!queryWithDefaults.location || !queryWithDefaults.dataset || !queryWithDefaults.table) {
-      return;
-    }
-    fetchTableSchema(queryWithDefaults.location, queryWithDefaults.dataset, queryWithDefaults.table);
-  }, [fetchTableSchema, queryWithDefaults.location, queryWithDefaults.dataset, queryWithDefaults.table]);
+  const getTables = useCallback(
+    async (d?: string) => {
+      if (!queryWithDefaults.location || !apiClient) {
+        return [];
+      }
 
-  const [isSchemaOpen, setIsSchemaOpen] = useState(false);
-  const theme: GrafanaTheme2 = useTheme2();
-  const schemaTab = (
-    <Tab
-      label="Table schema"
-      active={isSchemaOpen}
-      onChangeTab={() => {
-        if (!Boolean(queryWithDefaults.table)) {
-          return;
+      let datasets = [];
+      if (!d) {
+        datasets = await apiClient.getDatasets(queryWithDefaults.location);
+        return datasets.map((d) => ({ name: d, completion: `${apiClient.getDefaultProject()}.${d}.` }));
+      } else {
+        const path = d.split('.').filter((s) => s);
+        if (path.length > 2) {
+          return [];
         }
-        setIsSchemaOpen(true);
-      }}
-      icon={fetchTableSchemaState.loading ? 'fa fa-spinner' : undefined}
-    />
+        if (path[0] && path[1]) {
+          const tables = await apiClient.getTables(queryWithDefaults.location, path[1]);
+          return tables.map((t) => ({ name: t }));
+        } else if (path[0]) {
+          datasets = await apiClient.getDatasets(queryWithDefaults.location);
+          return datasets.map((d) => ({ name: d, completion: `${d}` }));
+        } else {
+          return [];
+        }
+      }
+    },
+    [apiClient, queryWithDefaults.location]
   );
   return (
     <>
-      <TabsBar>
-        <Tab label={'Query'} active={!isSchemaOpen} onChangeTab={() => setIsSchemaOpen(false)} />
-        {queryWithDefaults.table ? schemaTab : <Tooltip content={'Choose table first'}>{schemaTab}</Tooltip>}
-      </TabsBar>
-
-      <TabContent>
-        {!isSchemaOpen && <QueryEditorRaw query={queryWithDefaults} onChange={onChange} onRunQuery={onRunQuery} />}
-        {isSchemaOpen && (
-          <div
-            style={{
-              height: '300px',
-              padding: `${theme.spacing(1)}`,
-              marginBottom: `${theme.spacing(1)}`,
-              border: `1px solid ${theme.colors.border.medium}`,
-              overflow: 'auto',
-            }}
-          >
-            {fetchTableSchemaState.value && fetchTableSchemaState.value.schema && queryWithDefaults.table && (
-              <CustomScrollbar>
-                <JSONFormatter json={fetchTableSchemaState.value.schema} open={2} />
-              </CustomScrollbar>
-            )}
-          </div>
-        )}
-      </TabContent>
+      <QueryEditorRaw
+        getTables={getTables}
+        getColumns={getColumns}
+        query={queryWithDefaults}
+        onChange={onChange}
+        onRunQuery={onRunQuery}
+      />
     </>
   );
 }
