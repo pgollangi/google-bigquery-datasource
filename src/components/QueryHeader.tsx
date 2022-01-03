@@ -48,13 +48,13 @@ const QueryHeader: React.FC<QueryHeaderProps> = ({
   );
 
   const processQuery = (q: BigQueryQueryNG) => {
-    if (isQueryValid(q)) {
+    if (isQueryValid(q) && onRunQuery) {
       onRunQuery();
     }
   };
 
   const onFormatChange = (e: SelectableValue) => {
-    const next = { ...query, format: e.value || QueryFormat.Timeseries };
+    const next = { ...query, format: e.value !== undefined ? e.value : QueryFormat.Table };
     onChange(next);
     processQuery(next);
   };

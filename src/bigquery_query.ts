@@ -33,7 +33,7 @@ export default class BigQueryQuery {
     this.groupBy = '';
     this.tmpValue = '';
 
-    target.format = target.format || QueryFormat.Table;
+    target.format = target.format !== undefined ? target.format : QueryFormat.Table;
     target.location = target.location || undefined;
 
     target.orderByCol = target.orderByCol || '1';
