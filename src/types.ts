@@ -75,23 +75,23 @@ export interface ResourceSelectorProps {
   className?: string;
   applyDefault?: boolean;
 }
-
 export interface BigQueryQueryNG extends DataQuery {
   dataset?: string;
   table?: string;
 
   format: QueryFormat;
+  rawQuery?: boolean;
+  rawSql: string;
+  location?: string;
+
   orderByCol?: string;
   orderBySort?: string;
-  location?: string;
-  timeColumn: string;
+  timeColumn?: string;
   timeColumnType?: 'TIMESTAMP' | 'DATE' | 'DATETIME' | 'int4';
-  metricColumn: string;
+  metricColumn?: string;
   group?: Array<{ type: GroupType; params: string[] }>;
   where?: any[];
   select?: any[];
-  rawQuery?: boolean;
-  rawSql: string;
   partitioned?: boolean;
   partitionedField?: string;
   convertToUTC?: boolean;

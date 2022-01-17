@@ -1,3 +1,25 @@
+// # MIT License
+
+// ## Copyright (c) 2019 DoiT International
+
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 import { getTemplateSrv, TemplateSrv } from '@grafana/runtime';
 import { ScopedVars, VariableModel } from '@grafana/data';
 import _ from 'lodash';
@@ -70,9 +92,9 @@ export default class BigQueryQuery {
         'TIMESTAMP(' +
         '  (' +
         'PARSE_DATE( "%Y-%m-%d",CONCAT( CAST((EXTRACT(YEAR FROM ' +
-        quoteFiledName(this.target.timeColumn) +
+        quoteFiledName(this.target.timeColumn || '') +
         ")) AS STRING),'-',CAST((EXTRACT(MONTH FROM " +
-        quoteFiledName(this.target.timeColumn) +
+        quoteFiledName(this.target.timeColumn || '') +
         ')) AS STRING),' +
         "'-','01'" +
         ')' +
@@ -145,7 +167,7 @@ export default class BigQueryQuery {
     if (timeGroup) {
       query = this._buildTimeColumntimeGroup(alias, timeGroup);
     } else {
-      query = quoteFiledName(this.target.timeColumn);
+      query = quoteFiledName(this.target.timeColumn || '');
       if (alias) {
         query += ' AS time';
       }
@@ -155,7 +177,7 @@ export default class BigQueryQuery {
 
   buildMetricColumn() {
     if (this.hasMetricColumn()) {
-      return quoteFiledName(this.target.metricColumn) + ' AS metric';
+      return quoteFiledName(this.target.metricColumn || '') + ' AS metric';
     }
 
     return '';
@@ -514,9 +536,9 @@ export default class BigQueryQuery {
         this.target.timeColumn = tf[1];
       }
     }
-    const range = quoteFiledName(this.target.timeColumn) + ' BETWEEN ' + from + ' AND ' + to;
-    const fromRange = quoteFiledName(this.target.timeColumn) + ' > ' + from + ' ';
-    const toRange = quoteFiledName(this.target.timeColumn) + ' < ' + to + ' ';
+    const range = quoteFiledName(this.target.timeColumn || '') + ' BETWEEN ' + from + ' AND ' + to;
+    const fromRange = quoteFiledName(this.target.timeColumn || '') + ' > ' + from + ' ';
+    const toRange = quoteFiledName(this.target.timeColumn || '') + ' < ' + to + ' ';
     q = q.replace(/\$__timeFilter\((.*?)\)/g, range);
     q = q.replace(/\$__timeFrom\(([\w_.]+)\)/g, fromRange);
     q = q.replace(/\$__timeTo\(([\w_.]+)\)/g, toRange);
@@ -542,9 +564,9 @@ export default class BigQueryQuery {
 
   private _dateToTimestamp() {
     if (this.target.timeColumnType === 'DATE') {
-      return 'Timestamp(' + quoteFiledName(this.target.timeColumn) + ')';
+      return 'Timestamp(' + quoteFiledName(this.target.timeColumn || '') + ')';
     }
-    return quoteFiledName(this.target.timeColumn);
+    return quoteFiledName(this.target.timeColumn || '');
   }
 
   private _calcAutoInterval(options: any) {

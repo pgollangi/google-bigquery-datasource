@@ -6,10 +6,10 @@ import { SQLBuilderSelectRow } from 'components/SQLBuilderSelectRow';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAsync } from 'react-use';
 import { applyQueryDefaults, isQueryValid } from 'utils';
-import { getApiClient } from './api';
-import QueryHeader from './components/QueryHeader';
-import { BigQueryDatasource } from './datasource';
-import { BigQueryOptions, BigQueryQueryNG, EditorMode, QueryRowFilter } from './types';
+import { getApiClient } from '../api';
+import QueryHeader from '../components/QueryHeader';
+import { BigQueryDatasource } from '../datasource';
+import { BigQueryOptions, BigQueryQueryNG, EditorMode, QueryRowFilter } from '../types';
 
 type Props = QueryEditorProps<BigQueryDatasource, BigQueryQueryNG, BigQueryOptions>;
 
