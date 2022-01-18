@@ -286,6 +286,7 @@ export function applyQueryDefaults(q: BigQueryQueryNG, ds: BigQueryDatasource) {
     sql: q.sql || {
       columns: [],
       where: undefined,
+      limit: 10,
     },
   };
 

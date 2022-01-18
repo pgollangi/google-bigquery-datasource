@@ -11,8 +11,8 @@ export function toRawSql(query: BigQueryQueryNG, projectId: string): string {
     rawQuery += `FROM ${projectId}.${query.dataset}.${query.table} `;
   }
 
-  //   if (sql.limit) {
-  rawQuery += `LIMIT 10 `;
-  //   }
+  if (query.sql?.limit) {
+    rawQuery += `LIMIT ${query.sql.limit} `;
+  }
   return rawQuery;
 }
