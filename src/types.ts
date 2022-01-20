@@ -64,7 +64,7 @@ export interface SQLExpression {
   where?: string;
   groupBy?: string;
   orderBy?: string;
-  orderByDirection?: string;
+  orderByDirection?: 'ASC' | 'DESC';
   limit?: number;
 }
 
