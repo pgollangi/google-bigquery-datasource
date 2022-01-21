@@ -61,6 +61,7 @@ function makeRenderColumn({
         <Select
           value={item.property?.name ? toOption(item.property.name) : null}
           options={options}
+          menuShouldPortal
           onChange={({ value }) => value && onChangeItem(setGroupByField(value))}
           disabled={disabled}
           isLoading={isLoading}

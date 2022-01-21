@@ -33,6 +33,8 @@ export function SQLBuilderSelectRow({ query, apiClient, onQueryChange }: SQLBuil
               <Select
                 value={getColumnValue(item)}
                 options={state.value}
+                menuShouldPortal
+                allowCustomValue
                 onChange={({ value }) => {
                   const newItem = {
                     ...item,
@@ -59,11 +61,13 @@ export function SQLBuilderSelectRow({ query, apiClient, onQueryChange }: SQLBuil
               <Select
                 value={item.name ? toOption(item.name) : null}
                 isClearable
+                menuShouldPortal
+                allowCustomValue
                 options={BQ_AGGREGATE_FNS.map((v) => ({ label: v.name, value: v.name }))}
-                onChange={({ value }) => {
+                onChange={(value) => {
                   const newItem = {
                     ...item,
-                    name: value,
+                    name: value?.value,
                   };
                   const newQuery = {
                     ...query,
@@ -81,7 +85,8 @@ export function SQLBuilderSelectRow({ query, apiClient, onQueryChange }: SQLBuil
               variant="secondary"
               size="md"
               onClick={() => {
-                const clone = [...query.sql.columns!].splice(index, 1);
+                const clone = [...query.sql.columns!];
+                clone.splice(index, 1);
                 const newQuery = {
                   ...query,
                   sql: { ...query.sql, columns: clone },

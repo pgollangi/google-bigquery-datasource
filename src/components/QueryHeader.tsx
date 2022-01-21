@@ -77,6 +77,7 @@ const QueryHeader: React.FC<QueryHeaderProps> = ({
           value={location}
           placeholder="Select location"
           allowCustomValue
+          menuShouldPortal
           onChange={({ value }) => value && onChange({ ...query, location: value || DEFAULT_REGION })}
           options={PROCESSING_LOCATIONS}
         />
@@ -166,6 +167,7 @@ const QueryHeader: React.FC<QueryHeaderProps> = ({
             <EditorField label="Format" width={12}>
               <Select
                 options={QUERY_FORMAT_OPTIONS}
+                menuShouldPortal
                 value={query.format}
                 onChange={onFormatChange}
                 className="width-12"

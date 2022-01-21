@@ -41,6 +41,7 @@ export function SQLOrderByRow({ query, onQueryChange, apiClient }: SQLOrderByRow
             options={state.value}
             value={query.sql?.orderBy?.property.name ? toOption(query.sql.orderBy.property.name) : null}
             isClearable
+            menuShouldPortal
             onChange={(e) => {
               const newQuery = { ...query, sql: { ...query.sql, orderBy: setPropertyField(e?.value) } };
               if (e === null) {
