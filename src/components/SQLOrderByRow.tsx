@@ -1,11 +1,11 @@
-import { SelectableValue } from '@grafana/data';
+import { SelectableValue, toOption } from '@grafana/data';
 import { EditorField, Space } from '@grafana/experimental';
 import { Input, RadioButtonGroup, Select } from '@grafana/ui';
 import { BigQueryAPI } from 'api';
 import React from 'react';
 import { useAsync } from 'react-use';
 import { BigQueryQueryNG, QueryWithDefaults } from 'types';
-import { toRawSql } from 'utils/sql.utils';
+import { setPropertyField, toRawSql } from 'utils/sql.utils';
 
 type SQLOrderByRowProps = {
   query: QueryWithDefaults;
@@ -24,7 +24,7 @@ export function SQLOrderByRow({ query, onQueryChange, apiClient }: SQLOrderByRow
       return;
     }
     const columns = await apiClient.getColumns(query.location, query.dataset, query.table, true);
-    return columns.map<SelectableValue<string>>((d) => ({ label: d, value: d }));
+    return columns.map<SelectableValue<string>>(toOption);
   }, [apiClient, query.dataset, query.location, query.table]);
 
   const onSortOrderChange = (item: 'ASC' | 'DESC') => {
@@ -39,10 +39,10 @@ export function SQLOrderByRow({ query, onQueryChange, apiClient }: SQLOrderByRow
         <>
           <Select
             options={state.value}
-            value={query.sql?.orderBy}
+            value={query.sql?.orderBy?.property.name ? toOption(query.sql.orderBy.property.name) : null}
             isClearable
             onChange={(e) => {
-              const newQuery = { ...query, sql: { ...query.sql, orderBy: e?.value } };
+              const newQuery = { ...query, sql: { ...query.sql, orderBy: setPropertyField(e?.value) } };
               if (e === null) {
                 newQuery.sql.orderByDirection = undefined;
               }
@@ -56,7 +56,7 @@ export function SQLOrderByRow({ query, onQueryChange, apiClient }: SQLOrderByRow
 
           <RadioButtonGroup
             options={sortOrderOptions}
-            disabled={!query.sql?.orderBy}
+            disabled={!query.sql?.orderBy?.property.name}
             value={query.sql.orderByDirection}
             onChange={onSortOrderChange}
           />

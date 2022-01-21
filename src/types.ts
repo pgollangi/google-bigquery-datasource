@@ -1,5 +1,10 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 import { BigQueryAPI } from 'api';
+import {
+  QueryEditorFunctionExpression,
+  QueryEditorGroupByExpression,
+  QueryEditorPropertyExpression,
+} from 'expressions';
 import { applyQueryDefaults } from 'utils';
 
 export enum GoogleAuthType {
@@ -59,11 +64,11 @@ export interface QueryModel extends DataQuery {
 }
 
 export interface SQLExpression {
-  columns?: string[];
+  columns?: QueryEditorFunctionExpression[];
   from?: string;
   where?: string;
-  groupBy?: string;
-  orderBy?: string;
+  groupBy?: QueryEditorGroupByExpression[];
+  orderBy?: QueryEditorPropertyExpression;
   orderByDirection?: 'ASC' | 'DESC';
   limit?: number;
 }

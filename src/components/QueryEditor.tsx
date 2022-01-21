@@ -10,6 +10,7 @@ import { getApiClient } from '../api';
 import QueryHeader from '../components/QueryHeader';
 import { BigQueryDatasource } from '../datasource';
 import { BigQueryOptions, BigQueryQueryNG, EditorMode, QueryRowFilter } from '../types';
+import { SQLGroupByRow } from './SQLGroupByRow';
 import { SQLOrderByRow } from './SQLOrderByRow';
 
 type Props = QueryEditorProps<BigQueryDatasource, BigQueryQueryNG, BigQueryOptions>;
@@ -71,10 +72,15 @@ export function QueryEditor({ datasource, query, onChange, onRunQuery }: Props) 
       {queryWithDefaults.editorMode !== EditorMode.Code && (
         <EditorRows>
           <EditorRow>
-            <EditorField label="Column">
-              <SQLBuilderSelectRow query={queryWithDefaults} onQueryChange={onColumnsChange} apiClient={apiClient} />
-            </EditorField>
+            <SQLBuilderSelectRow query={queryWithDefaults} onQueryChange={onColumnsChange} apiClient={apiClient} />
           </EditorRow>
+          {queryRowFilter.group && (
+            <EditorRow>
+              <EditorField label="Group by column">
+                <SQLGroupByRow query={queryWithDefaults} onQueryChange={onColumnsChange} apiClient={apiClient} />
+              </EditorField>
+            </EditorRow>
+          )}
           {queryRowFilter.order && (
             <EditorRow>
               <SQLOrderByRow query={queryWithDefaults} onQueryChange={onColumnsChange} apiClient={apiClient} />

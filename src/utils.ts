@@ -285,6 +285,7 @@ export function applyQueryDefaults(q: BigQueryQueryNG, ds: BigQueryDatasource) {
     editorMode: q.editorMode || EditorMode.Builder,
     sql: q.sql || {
       columns: [],
+      groupBy: [],
       where: undefined,
       limit: 10,
     },
