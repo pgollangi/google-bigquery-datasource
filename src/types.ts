@@ -1,6 +1,7 @@
 import { DataQuery, DataSourceJsonData } from '@grafana/data';
 import { BigQueryAPI } from 'api';
 import {
+  QueryEditorArrayExpression,
   QueryEditorFunctionExpression,
   QueryEditorGroupByExpression,
   QueryEditorPropertyExpression,
@@ -66,7 +67,7 @@ export interface QueryModel extends DataQuery {
 export interface SQLExpression {
   columns?: QueryEditorFunctionExpression[];
   from?: string;
-  where?: string;
+  where?: QueryEditorArrayExpression;
   groupBy?: QueryEditorGroupByExpression[];
   orderBy?: QueryEditorPropertyExpression;
   orderByDirection?: 'ASC' | 'DESC';
