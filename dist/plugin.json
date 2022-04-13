@@ -1,0 +1,57 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "id": "grafana-bigquery-datasource",
+  "type": "datasource",
+  "name": "Google BigQuery",
+  "metrics": true,
+  "tables": true,
+  "annotations": true,
+  "alerting": true,
+  "backend": true,
+  "executable": "grafana-bq-ds",
+  "dependencies": {
+    "grafanaDependency": "8.x || 9.x"
+  },
+  "queryOptions": {
+    "maxDataPoints": true
+  },
+  "info": {
+    "description": "Google BigQuery datasource for Grafana",
+    "author": {
+      "name": "Grafana Labs",
+      "url": "https://grafana.com"
+    },
+    "keywords": [
+      "bigquery"
+    ],
+    "logos": {
+      "small": "img/logo.png",
+      "large": "img/logo.png"
+    },
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://github.com/grafana/google-bigquery-datasource/"
+      }
+    ],
+    "version": "1.0.0",
+    "updated": "2022-04-13"
+  },
+  "routes": [
+    {
+      "path": "bigquery",
+      "url": "https://www.googleapis.com/bigquery",
+      "jwtTokenAuth": {
+        "scopes": [
+          "https://www.googleapis.com/auth/bigquery",
+          "https://www.googleapis.com/auth/drive"
+        ],
+        "params": {
+          "token_uri": "{{.JsonData.tokenUri}}",
+          "client_email": "{{.JsonData.clientEmail}}",
+          "private_key": "{{.SecureJsonData.privateKey}}"
+        }
+      }
+    }
+  ]
+}
