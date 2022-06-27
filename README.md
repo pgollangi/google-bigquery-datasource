@@ -81,6 +81,10 @@ datasources:
       authenticationType: gce
 ```
 
+## Importing queries created with DoiT International BigQuery DataSource plugin
+
+For everyone using Grafana 8.5+, it’s possible to import queries created with the DoiT International BigQuery community plugin by simply changing the data source to Grafana BigQuery. Please note that queries will be imported as raw SQL queries.
+
 ## Query the data source
 
 The query editor allows you to query Google BigQuery datasource. Queries can contain macros which simplify syntax and allow for dynamic parts.
