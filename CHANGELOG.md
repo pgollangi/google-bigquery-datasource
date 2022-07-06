@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2.0
+- **Datasource config**: Add support for using private key path in datasource configuration
+
 ## 1.1.1
 
 - **Fix:** Compatibility issue with Grafana version 8.0.0 (#121)

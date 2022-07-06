@@ -68,6 +68,59 @@ describe('ConfigEditor', () => {
     expect(screen.queryByTestId(TEST_IDS.dropZone)).not.toBeInTheDocument();
   });
 
+  it('renders JWT form when button is clicked', () => {
+    const { getByTestId } = render(
+      <WrapInState
+        defaultOptions={
+          {
+            jsonData: {},
+          } as DataSourceSettings<BigQueryOptions, BigQuerySecureJsonData>
+        }
+      >
+        {({ options, setOptions }) => {
+          return <BigQueryConfigEditor options={options} onOptionsChange={setOptions} />;
+        }}
+      </WrapInState>
+    );
+    const fillManuallyButton = getByTestId(TEST_IDS.fillJwtManuallyButton);
+    fireEvent.click(fillManuallyButton);
+
+    expect(screen.queryByTestId(TEST_IDS.pasteArea)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(TEST_IDS.dropZone)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(TEST_IDS.jwtForm)).toBeInTheDocument();
+  });
+
+  it('renders private key path input when link is clicked', () => {
+    const { getByTestId } = render(
+      <WrapInState
+        defaultOptions={
+          ({
+            jsonData: {
+              clientEmail: 'test@grafana.com',
+              tokenUri: 'https://accounts.google.com/o/oauth2/token',
+              defaultProject: 'test-project',
+            },
+            secureJsonFields: {
+              privateKey: true,
+            },
+          } as unknown) as DataSourceSettings<BigQueryOptions, BigQuerySecureJsonData>
+        }
+      >
+        {({ options, setOptions }) => {
+          return <BigQueryConfigEditor options={options} onOptionsChange={setOptions} />;
+        }}
+      </WrapInState>
+    );
+
+    expect(screen.queryByTestId(TEST_IDS.jwtForm)).toBeInTheDocument();
+
+    const togglePublicKeyPathLink = getByTestId(TEST_IDS.linkPrivateKeyPath);
+    fireEvent.click(togglePublicKeyPathLink);
+
+    expect(screen.queryByTestId(TEST_IDS.privateKeyInput)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(TEST_IDS.privateKeyPathInput)).toBeInTheDocument();
+  });
+
   it('renders JWT form when token is pasted', () => {
     const { getByTestId } = render(
       <WrapInState
@@ -129,7 +182,7 @@ describe('ConfigEditor', () => {
     expect(screen.queryByTestId(TEST_IDS.dropZone)).toBeInTheDocument();
   });
 
-  it('renders JWT form when data is provided', () => {
+  it('renders JWT form when data is provided (with private key)', () => {
     render(
       <BigQueryConfigEditor
         options={
@@ -149,8 +202,34 @@ describe('ConfigEditor', () => {
     );
 
     expect(screen.queryByTestId(TEST_IDS.jwtForm)).toBeInTheDocument();
+    expect(screen.queryByTestId(TEST_IDS.privateKeyInput)).toBeInTheDocument();
     expect(screen.queryByTestId(TEST_IDS.pasteArea)).not.toBeInTheDocument();
     expect(screen.queryByTestId(TEST_IDS.dropZone)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(TEST_IDS.privateKeyPathInput)).not.toBeInTheDocument();
+  });
+
+  it('renders JWT form when data is provided (with private key path)', () => {
+    render(
+      <BigQueryConfigEditor
+        options={
+          ({
+            jsonData: {
+              clientEmail: 'test@grafana.com',
+              tokenUri: 'https://accounts.google.com/o/oauth2/token',
+              defaultProject: 'test-project',
+              privateKeyPath: 'private/key/path',
+            },
+          } as unknown) as DataSourceSettings<BigQueryOptions, BigQuerySecureJsonData>
+        }
+        onOptionsChange={() => {}}
+      />
+    );
+
+    expect(screen.queryByTestId(TEST_IDS.jwtForm)).toBeInTheDocument();
+    expect(screen.queryByTestId(TEST_IDS.privateKeyPathInput)).toBeInTheDocument();
+    expect(screen.queryByTestId(TEST_IDS.pasteArea)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(TEST_IDS.dropZone)).not.toBeInTheDocument();
+    expect(screen.queryByTestId(TEST_IDS.privateKeyInput)).not.toBeInTheDocument();
   });
 
   it('resets service account credentials when changing auth type', () => {

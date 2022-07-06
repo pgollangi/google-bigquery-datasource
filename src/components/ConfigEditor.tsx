@@ -14,6 +14,10 @@ import { BigQueryOptions, BigQuerySecureJsonData, GoogleAuthType } from '../type
 
 export type BigQueryConfigEditorProps = DataSourcePluginOptionsEditorProps<BigQueryOptions, BigQuerySecureJsonData>;
 
+const isJWTAuth = (authenticationType: GoogleAuthType): boolean => {
+  return authenticationType === GoogleAuthType.JWT || authenticationType === undefined;
+};
+
 export const BigQueryConfigEditor: React.FC<BigQueryConfigEditorProps> = (props) => {
   const { options, onOptionsChange } = props;
   const { jsonData, secureJsonFields, secureJsonData } = options;
@@ -21,19 +25,27 @@ export const BigQueryConfigEditor: React.FC<BigQueryConfigEditorProps> = (props)
     jsonData.authenticationType = GoogleAuthType.JWT;
   }
 
-  const isJWT = jsonData.authenticationType === GoogleAuthType.JWT || jsonData.authenticationType === undefined;
+  const [jwtAuth, setJWTAuth] = React.useState<boolean>(isJWTAuth(jsonData.authenticationType));
 
-  const onAuthTypeChange = (authenticationType: GoogleAuthType) => {
-    onResetApiKey({ authenticationType });
+  const getJTWConfig = (): boolean =>
+    Boolean(
+      jsonData.clientEmail &&
+        jsonData.defaultProject &&
+        jsonData.tokenUri &&
+        ((secureJsonFields && secureJsonFields.privateKey) || jsonData.privateKeyPath)
+    );
+
+  const [configEditorVisible, setConfigEditorVisible] = React.useState<boolean>(getJTWConfig());
+
+  const showConfigEditor = (): void => {
+    setConfigEditorVisible(true);
   };
 
-  const hasJWTConfigured = Boolean(
-    secureJsonFields &&
-      secureJsonFields.privateKey &&
-      jsonData.clientEmail &&
-      jsonData.defaultProject &&
-      jsonData.tokenUri
-  );
+  const onAuthTypeChange = (authenticationType: GoogleAuthType) => {
+    setConfigEditorVisible(getJTWConfig());
+    onResetApiKey({ authenticationType });
+    setJWTAuth(isJWTAuth(authenticationType));
+  };
 
   const onResetApiKey = (jsonData?: Partial<BigQueryOptions>) => {
     const nextSecureJsonData = { ...secureJsonData };
@@ -42,8 +54,11 @@ export const BigQueryConfigEditor: React.FC<BigQueryConfigEditorProps> = (props)
     delete nextJsonData.clientEmail;
     delete nextJsonData.defaultProject;
     delete nextJsonData.tokenUri;
+    delete nextJsonData.privateKeyPath;
     delete nextSecureJsonData.privateKey;
 
+    setJWTAuth(true);
+    setConfigEditorVisible(false);
     onOptionsChange({
       ...options,
       secureJsonData: nextSecureJsonData,
@@ -58,7 +73,10 @@ export const BigQueryConfigEditor: React.FC<BigQueryConfigEditorProps> = (props)
       <ConfigurationHelp />
 
       <FieldSet label="Authentication">
-        <Field label="Authentication type">
+        <Field
+          label="Authentication type"
+          description="Switching the authentication type resets the existing configuration"
+        >
           <RadioButtonGroup
             options={GOOGLE_AUTH_TYPE_OPTIONS}
             value={jsonData.authenticationType || GoogleAuthType.JWT}
@@ -67,12 +85,13 @@ export const BigQueryConfigEditor: React.FC<BigQueryConfigEditorProps> = (props)
         </Field>
       </FieldSet>
 
-      {isJWT && (
+      {jwtAuth && (
         <FieldSet label="JWT Key Details">
-          {hasJWTConfigured ? (
+          {configEditorVisible ? (
             <JWTForm options={options.jsonData} onReset={() => onResetApiKey()} onChange={onJWTFormChange} />
           ) : (
             <JWTConfigEditor
+              showConfigEditor={showConfigEditor}
               onChange={(jwt) => {
                 onOptionsChange({
                   ...options,
@@ -95,7 +114,7 @@ export const BigQueryConfigEditor: React.FC<BigQueryConfigEditorProps> = (props)
       )}
 
       <FieldSet label="Other settings">
-        {!isJWT && (
+        {!jwtAuth && (
           <Field label="Default project" description="GCP project where BigQuery jobs will be created">
             <Input
               id="defaultProject"

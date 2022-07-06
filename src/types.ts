@@ -34,6 +34,7 @@ export interface BigQueryOptions extends DataSourceJsonData {
   tokenUri?: string;
   clientEmail?: string;
   defaultProject?: string;
+  privateKeyPath?: string;
 }
 
 export interface BigQuerySecureJsonData {

@@ -3,6 +3,7 @@ package bigquery
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/grafana/grafana-bigquery-datasource/pkg/bigquery/types"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
@@ -18,6 +19,19 @@ type Credentials struct {
 	TokenURI    string `json:"token_uri"`
 }
 
+func readPrivateKeyFromFile(rsaPrivateKeyLocation string) (string, error) {
+	if rsaPrivateKeyLocation == "" {
+		return "", fmt.Errorf("missing file location for private key")
+	}
+
+	privateKey, err := ioutil.ReadFile(rsaPrivateKeyLocation)
+	if err != nil {
+		return "", fmt.Errorf("could not read private key file from file system: %w", err)
+	}
+
+	return string(privateKey), nil
+}
+
 // LoadSettings will read and validate Settings from the DataSourceConfg
 func LoadSettings(config *backend.DataSourceInstanceSettings) (types.BigQuerySettings, error) {
 	settings := types.BigQuerySettings{}
@@ -25,7 +39,19 @@ func LoadSettings(config *backend.DataSourceInstanceSettings) (types.BigQuerySet
 		return settings, fmt.Errorf("could not unmarshal DataSourceInfo json: %w", err)
 	}
 
-	settings.PrivateKey = config.DecryptedSecureJSONData["privateKey"]
+	// Check if a private key path was provided. Fall back to the plugin's default method
+	// of an inline private key
+	if settings.PrivateKeyPath != "" {
+		privateKey, err := readPrivateKeyFromFile(settings.PrivateKeyPath)
+		if err != nil {
+			return settings, fmt.Errorf("could not write private key to DataSourceInfo json: %w", err)
+		}
+
+		settings.PrivateKey = privateKey
+	} else {
+		settings.PrivateKey = config.DecryptedSecureJSONData["privateKey"]
+	}
+
 	settings.DatasourceId = config.ID
 	settings.Updated = config.Updated
 

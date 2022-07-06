@@ -51,7 +51,7 @@ Below you will find some provisioning examples
 #### Using service account
 
 ```yaml
-# config file version
+# config file version (with private key in secureJsonData)
 apiVersion: 1
 datasources:
   - name: BigQuery DS
@@ -65,6 +65,22 @@ datasources:
       tokenUri: https://oauth2.googleapis.com/token
     secureJsonData:
       privateKey: your-private-key
+```
+
+```yaml
+# config file version (with private key path in jsonData)
+apiVersion: 1
+datasources:
+  - name: BigQuery DS
+    type: grafana-bigquery-datasource
+    editable: true
+    enabled: true
+    jsonData:
+      authenticationType: jwt
+      clientEmail: your-client-email
+      defaultProject: your-default-bigquery-project
+      tokenUri: https://oauth2.googleapis.com/token
+      privateKeyPath: '/etc/secrets/bigquery.pem'
 ```
 
 #### Using Google Metadata Server
