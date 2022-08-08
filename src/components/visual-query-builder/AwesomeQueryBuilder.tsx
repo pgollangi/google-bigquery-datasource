@@ -54,6 +54,7 @@ export const widgets: Widgets = {
   },
   datetime: {
     ...BasicConfig.widgets.datetime,
+
     factory: function DateTimeInput(props) {
       return (
         <DateTimePicker
@@ -135,11 +136,70 @@ export const settings: Settings = {
   },
 };
 
+const enum Op {
+  IN_TIME_RANGE = 'select_within_time_range',
+}
+
+
+
+const operators = {
+  ...BasicConfig.operators,
+ [Op.IN_TIME_RANGE] : {
+  ...BasicConfig.operators.between,
+    label: "is within Time Range",
+    labelForFormat: "IS WITHIN TIME RANGE",
+    sqlOp: "IS WITHIN TIME RANGE",
+    cardinality: 0,
+    reversedOp: "is_null",
+    formatOp: (field, op, value, valueSrc, valueType, opDef, operatorOptions, isForDisplay) => {
+      return `$__timeFilter(${field})`;
+    },
+    spelFormatOp: (field, op, values, valueSrc, valueTypes, opDef, operatorOptions, fieldDef) => {
+      return `$__timeFilter(${field})`;
+    },
+    // check if value is null OR not exists
+    mongoFormatOp: (field, op, values, valueSrc, valueTypes, opDef, operatorOptions, fieldDef) => {
+      return `$__timeFilter(${field})`;
+    },
+    jsonLogic: (field, op, values, valueSrc, valueTypes, opDef, operatorOptions, fieldDef) => {
+      return `$__timeFilter(${field})`;
+    },
+ },
+};
+
+/*
+    [Op.IN_TIME_RANGE]: {
+      ......BasicConfig.operators[Op.IN_TIME_RANGE],
+      sqlFormatOp: customSqlWithinTimeRangeFormatter,
+    },
+
+      
+
+*/
+
+const typesWithOverride = {
+  ...BasicConfig.types,
+  dateTime: {
+    ...BasicConfig.types.dateTime,
+    widgets: {
+      ...BasicConfig.types.dateTime.widgets,
+      dateTime: {
+        ...BasicConfig.types.dateTime.widgets.dateTime,
+        operators: [
+          ...BasicConfig.types.dateTime.widgets.dateTime.operators,
+          "IN_TIME_RANGE"
+        ]
+      },
+    },
+  },
+};
+
 export const raqbConfig: Config = {
   ...BasicConfig,
   widgets,
   settings,
-  operators: supportedOperators as typeof BasicConfig.operators,
+  operators: operators as typeof BasicConfig.operators,
+  types: typesWithOverride,
 };
 
 export type { Config };
