@@ -12,6 +12,7 @@ import (
 	"github.com/grafana/grafana-bigquery-datasource/pkg/bigquery/api"
 	"github.com/grafana/grafana-bigquery-datasource/pkg/bigquery/driver"
 	"github.com/grafana/grafana-bigquery-datasource/pkg/bigquery/types"
+	"github.com/grafana/grafana-google-sdk-go/pkg/utils"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
@@ -20,7 +21,6 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/data/sqlutil"
 	"github.com/grafana/sqlds/v2"
 	"github.com/pkg/errors"
-	"golang.org/x/oauth2/google"
 	"google.golang.org/api/cloudresourcemanager/v3"
 	"google.golang.org/api/option"
 )
@@ -29,7 +29,6 @@ var PluginConfigFromContext = httpadapter.PluginConfigFromContext
 
 type BigqueryDatasourceIface interface {
 	sqlds.Driver
-	GetGCEDefaultProject(ctx context.Context) (string, error)
 	Datasets(ctx context.Context, args DatasetsArgs) ([]string, error)
 	TableSchema(ctx context.Context, args TableSchemaArgs) (*types.TableMetadataResponse, error)
 	ValidateQuery(ctx context.Context, args ValidateQueryArgs) (*api.ValidateQueryResponse, error)
@@ -79,7 +78,7 @@ func (s *BigQueryDatasource) Connect(config backend.DataSourceInstanceSettings, 
 	connectionSettings := getConnectionSettings(settings, args)
 
 	if settings.AuthenticationType == "gce" && connectionSettings.Project == "" {
-		defaultProject, err := s.GetGCEDefaultProject(context.Background())
+		defaultProject, err := utils.GCEDefaultProject(context.Background(), BigQueryScope)
 		if err != nil {
 			return nil, errors.WithMessage(err, "Failed to retrieve default GCE project")
 		}
@@ -181,22 +180,6 @@ func (s *BigQueryDatasource) Settings(_ backend.DataSourceInstanceSettings) sqld
 			Mode: data.FillModeNull,
 		},
 	}
-}
-
-func (s *BigQueryDatasource) GetGCEDefaultProject(ctx context.Context) (string, error) {
-	defaultCredentials, err := google.FindDefaultCredentials(ctx, "https://www.googleapis.com/auth/bigquery")
-	if err != nil {
-		return "", fmt.Errorf("failed to retrieve default project from GCE metadata server: %w", err)
-	}
-	token, err := defaultCredentials.TokenSource.Token()
-	if err != nil {
-		return "", fmt.Errorf("failed to retrieve GCP credential token: %w", err)
-	}
-	if !token.Valid() {
-		return "", errors.New("failed to validate GCP credentials")
-	}
-
-	return defaultCredentials.ProjectID, nil
 }
 
 type DatasetsArgs struct {

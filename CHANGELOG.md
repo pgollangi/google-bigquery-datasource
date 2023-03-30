@@ -2,7 +2,9 @@
 
 ## NEXT
 
-- **Chore**: Migrate to create-plugin #165 
+- **Chore**: Upgrade to latest grafana-google-sdks #166
+- **Chore**: Migrate to create-plugin #165
+- Added processing locations: Columbus (Ohio), Madrid, Milan and Paris #161
 
 ## 1.2.3
 
