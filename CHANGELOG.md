@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.6
+
+- **Chore** - Backend binaries are now compiled with golang 1.20.4
+
 ## 1.2.5
 
 - **Chore**: Bump go version
