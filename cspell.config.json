@@ -47,7 +47,11 @@
     "tempvar",
     "tokenprovider",
     "typecheck",
-    "vectorator"
+    "vectorator",
+    "instancemgmt",
+    "pluginv2",
+    "genproto",
+    "datasourcetest"
   ],
   "language": "en-US"
 }

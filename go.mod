@@ -6,11 +6,12 @@ require (
 	cloud.google.com/go v0.110.0
 	cloud.google.com/go/bigquery v1.51.2
 	github.com/grafana/grafana-google-sdk-go v0.1.0
-	github.com/grafana/grafana-plugin-sdk-go v0.162.0
+	github.com/grafana/grafana-plugin-sdk-go v0.167.0
 	github.com/grafana/sqlds/v2 v2.3.7
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.2
 	google.golang.org/api v0.118.0
+	google.golang.org/grpc v1.55.0
 )
 
 require (
@@ -20,7 +21,6 @@ require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/apache/arrow/go/arrow v0.0.0-20211112161151-bc219186db40 // indirect
-	github.com/apache/arrow/go/v11 v11.0.0 // indirect
 	github.com/apache/arrow/go/v12 v12.0.0 // indirect
 	github.com/apache/thrift v0.16.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
@@ -112,7 +112,6 @@ require (
 	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20230410155749-daa745c078e1 // indirect
-	google.golang.org/grpc v1.55.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	gopkg.in/fsnotify/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
