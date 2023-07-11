@@ -11,7 +11,6 @@ import (
 	bq "cloud.google.com/go/bigquery"
 	"github.com/grafana/grafana-google-sdk-go/pkg/utils"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/instancemgmt"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/resource/httpadapter"
@@ -100,10 +99,15 @@ func (s *BigQueryDatasource) Connect(config backend.DataSourceInstanceSettings, 
 	connectionKey := fmt.Sprintf("%d/%s:%s", config.ID, connectionSettings.Location, connectionSettings.Project)
 
 	if s.resourceManagerServices[fmt.Sprint(config.ID)] == nil {
-		err := createResourceManagerService(settings, fmt.Sprint(config.ID), s)
+		err := createResourceManagerService(config, settings, fmt.Sprint(config.ID), s)
 		if err != nil {
 			return nil, err
 		}
+	}
+
+	opts, err := config.HTTPClientOptions()
+	if err != nil {
+		return nil, err
 	}
 
 	c, exists := s.connections.Load(connectionKey)
@@ -130,7 +134,7 @@ func (s *BigQueryDatasource) Connect(config backend.DataSourceInstanceSettings, 
 		s.connections.Store(connectionKey, conn{db: db, driver: dr})
 		return db, nil
 	} else {
-		client, err := newHTTPClient(settings, httpclient.Options{}, bigQueryRoute)
+		client, err := newHTTPClient(settings, opts, bigQueryRoute)
 		if err != nil {
 			return nil, errors.WithMessage(err, "Failed to create http client")
 		}
@@ -159,16 +163,19 @@ func (s *BigQueryDatasource) Connect(config backend.DataSourceInstanceSettings, 
 
 }
 
-func createResourceManagerService(settings types.BigQuerySettings, id string, s *BigQueryDatasource) error {
-	httpClient, err := newHTTPClient(settings, httpclient.Options{}, resourceManagerRoute)
+func createResourceManagerService(config backend.DataSourceInstanceSettings, settings types.BigQuerySettings, id string, s *BigQueryDatasource) error {
+	httpOptions, err := config.HTTPClientOptions()
+	if err != nil {
+		return err
+	}
 
+	httpClient, err := newHTTPClient(settings, httpOptions, resourceManagerRoute)
 	if err != nil {
 		return errors.WithMessage(err, "Failed to create http client for resource manager")
 	}
 
 	cloudresourcemanagerService, err := cloudresourcemanager.NewService(context.Background(), option.WithHTTPClient(httpClient))
 	s.resourceManagerServices[id] = cloudresourcemanagerService
-
 	if err != nil {
 		return err
 	}
@@ -341,8 +348,12 @@ func (s *BigQueryDatasource) getApi(ctx context.Context, project, location strin
 		return nil, err
 	}
 
-	httpClient, err := newHTTPClient(settings, httpclient.Options{}, bigQueryRoute)
+	httpOptions, err := datasourceSettings.HTTPClientOptions()
+	if err != nil {
+		return nil, err
+	}
 
+	httpClient, err := newHTTPClient(settings, httpOptions, bigQueryRoute)
 	if err != nil {
 		return nil, errors.WithMessage(err, "Failed to crate http client")
 	}
