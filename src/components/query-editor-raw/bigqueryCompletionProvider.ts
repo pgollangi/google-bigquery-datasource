@@ -32,7 +32,7 @@ export const getBigQueryCompletionProvider: (args: CompletionProviderGetterArgs)
     resolve: async () => {
       return await getTables.current();
     },
-    parseName: (token: LinkedToken | null | undefined) => {
+    parseName: (token: LinkedToken) => {
       let processedToken = token;
       let tablePath = processedToken?.value ?? '';
 
