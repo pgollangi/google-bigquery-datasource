@@ -56,7 +56,7 @@ type ConnectionArgs struct {
 	Location string `json:"location,omitempty"`
 }
 
-func NewDatasource(settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
+func NewDatasource(_ context.Context, settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
 	s := newBigQueryDatasource()
 	ds := sqlds.NewDatasource(s)
 	ds.Completable = s
