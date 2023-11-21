@@ -15,6 +15,7 @@ import {
 import { PartitioningType, TableSchema } from 'api';
 import { BQ_AGGREGATE_FNS } from './bigQueryFunctions';
 import { BQ_OPERATORS } from './bigQueryOperators';
+import { MACROS } from './macros';
 
 interface CompletionProviderGetterArgs {
   getColumns: React.MutableRefObject<(t: string) => Promise<ColumnDefinition[]>>;
@@ -56,6 +57,7 @@ export const getBigQueryCompletionProvider: (args: CompletionProviderGetterArgs)
     supportedOperators: () => BQ_OPERATORS,
     customSuggestionKinds: customSuggestionKinds(getTables, getTableSchema),
     customStatementPlacement,
+    supportedMacros: () => MACROS,
   });
 
 export enum CustomStatementPlacement {
