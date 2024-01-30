@@ -15,6 +15,7 @@ export const PROCESSING_LOCATIONS: Array<SelectableValue<string>> = [
 
   // Americas
   { label: 'Columbus, Ohio (us-east5)', value: 'us-east5' },
+  { label: 'Dallas (us-south1)', value: 'us-south1' },
   { label: 'Iowa (us-central1)', value: 'us-central1' },
   { label: 'Los Angeles (us-west2)', value: 'us-west2' },
   { label: 'Las Vegas (us-west4)', value: 'us-west4' },
@@ -29,6 +30,7 @@ export const PROCESSING_LOCATIONS: Array<SelectableValue<string>> = [
 
   // Europe
   { label: 'Belgium (europe-west1)', value: 'europe-west1' },
+  { label: 'Berlin (europe-west10)', value: 'europe-west10' },
   { label: 'Finland (europe-north1)', value: 'europe-north1' },
   { label: 'Frankfurt (europe-west3)', value: 'europe-west3' },
   { label: 'London (europe-west2)', value: 'europe-west2' },
@@ -36,6 +38,7 @@ export const PROCESSING_LOCATIONS: Array<SelectableValue<string>> = [
   { label: 'Milan (europe-west8)', value: 'europe-west8' },
   { label: 'Netherlands (europe-west4)', value: 'europe-west4' },
   { label: 'Paris (europe-west9)', value: 'europe-west9' },
+  { label: 'Turin (europe-west12)', value: 'europe-west12' },
   { label: 'Warsaw (europe-central2)', value: 'europe-central2' },
   { label: 'Zürich (europe-west6)', value: 'europe-west6' },
 
@@ -51,6 +54,11 @@ export const PROCESSING_LOCATIONS: Array<SelectableValue<string>> = [
   { label: 'Sydney (australia-southeast1)', value: 'australia-southeast1' },
   { label: 'Taiwan (asia-east1)', value: 'asia-east1' },
   { label: 'Tokyo (asia-northeast1)', value: 'asia-northeast1' },
+
+  // Middle East
+  { label: 'Dammam (me-central2)', value: 'me-central2' },
+  { label: 'Doha (me-central1)', value: 'me-central1' },
+  { label: 'Tel Aviv (me-west1)', value: 'me-west1' },
 ];
 
 export const QUERY_PRIORITIES: Array<SelectableValue<QueryPriority>> = [
