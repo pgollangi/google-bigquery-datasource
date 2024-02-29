@@ -33,7 +33,7 @@ type BigqueryDatasourceIface interface {
 	Datasets(ctx context.Context, args DatasetsArgs) ([]string, error)
 	TableSchema(ctx context.Context, args TableSchemaArgs) (*types.TableMetadataResponse, error)
 	ValidateQuery(ctx context.Context, args ValidateQueryArgs) (*api.ValidateQueryResponse, error)
-	Projects(options ProjectsArgs) ([]*cloudresourcemanager.Project, error)
+	Projects(options ProjectsArgs) ([]*Project, error)
 }
 
 type conn struct {
@@ -280,14 +280,24 @@ type ProjectsArgs struct {
 	DatasourceID string `json:"datasourceId"`
 }
 
-func (s *BigQueryDatasource) Projects(options ProjectsArgs) ([]*cloudresourcemanager.Project, error) {
+type Project struct {
+	ProjectId   string `json:"projectId"`
+	DisplayName string `json:"displayName"`
+}
+
+func (s *BigQueryDatasource) Projects(options ProjectsArgs) ([]*Project, error) {
 	response, err := s.resourceManagerServices[options.DatasourceID].Projects.Search().Do()
 
 	if err != nil {
 		return nil, err
 	}
 
-	return response.Projects, nil
+	projects := make([]*Project, 0, len(response.Projects))
+	for _, project := range response.Projects {
+		projects = append(projects, &Project{project.ProjectId, project.DisplayName})
+	}
+
+	return projects, nil
 }
 
 type ValidateQueryArgs struct {
