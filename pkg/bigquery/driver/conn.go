@@ -1,19 +1,18 @@
 package driver
 
 import (
+	"cloud.google.com/go/bigquery"
+	bq "cloud.google.com/go/bigquery"
 	"context"
 	"database/sql/driver"
 	"encoding/base64"
 	"fmt"
-	"reflect"
-	"strings"
-	"time"
-
-	"cloud.google.com/go/bigquery"
-	bq "cloud.google.com/go/bigquery"
 	"github.com/grafana/grafana-bigquery-datasource/pkg/bigquery/types"
 	"github.com/grafana/grafana-plugin-sdk-go/backend/log"
 	"google.golang.org/api/iterator"
+	"reflect"
+	"strings"
+	"time"
 )
 
 type Dataset interface {
@@ -123,6 +122,8 @@ func (c *Conn) execContext(ctx context.Context, query string, args []driver.Valu
 	}
 
 	q := c.client.Query(query)
+
+	q.QueryConfig.Labels = c.headersAsLabels()
 	// q.DefaultProjectID = c.cfg.Project // allows omitting project in table reference
 	// q.DefaultDatasetID = c.cfg.Dataset // allows omitting dataset in table reference
 
@@ -221,9 +222,44 @@ func (c *Conn) QueryContext(ctx context.Context, query string, args []driver.Nam
 	return c.queryContext(ctx, query, _args)
 }
 
+func cleanStringForLabelOrValue(s string) string {
+	// See documentation for requirements https://cloud.google.com/bigquery/docs/labels-intro#requirements
+
+	// remove invalid characters
+	result := strings.ReplaceAll(s, "[^a-zA-Z0-9_-]", "")
+
+	// remove non-alphabetic leading character
+	result = strings.ReplaceAll(result, "^[^a-zA-Z]+", "")
+
+	// remove duplicate hyphens
+	result = strings.ReplaceAll(result, "-{2,}", "-")
+
+	// convert to lowercase
+	result = strings.ToLower(result)
+
+	// truncate to 63 characters
+	if len(result) > 63 {
+		result = result[:63]
+	}
+
+	return result
+}
+
+func (c *Conn) headersAsLabels() map[string]string {
+	labels := make(map[string]string)
+	for k, v := range c.cfg.Headers {
+		if len(v) > 0 {
+			labels[cleanStringForLabelOrValue(k)] = cleanStringForLabelOrValue(v[0])
+		}
+	}
+	return labels
+}
+
 func (c *Conn) queryContext(ctx context.Context, query string, args []driver.Value) (driver.Rows, error) {
 	q := c.client.Query(query)
 	q.Location = c.client.Location
+
+	q.QueryConfig.Labels = c.headersAsLabels()
 
 	rowsIterator, err := q.Read(ctx)
 	if err != nil {
