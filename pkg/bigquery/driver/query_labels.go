@@ -64,16 +64,16 @@ func headerInList(header string, headersList []string) bool {
 }
 
 // headersAsLabels returns a map of headers from the ConnectionSettings configuration
-// that are present in the headerConsts list. The keys in the map are cleaned and formatted
+// that are present in the wanted header list. The keys in the map are cleaned and formatted
 // as per the requirements specified in the BigQuery documentation.
 // The values in the map are the corresponding cleaned and formatted values from the configuration.
 // It returns the map of headers as labels.
 func (c *Conn) headersAsLabels() map[string]string {
 	labels := make(map[string]string)
-	headerConsts := []string{HeaderPluginID, HeaderDatasourceUID, HeaderDashboardUID, HeaderPanelID, HeaderPanelPluginId, HeaderQueryGroupID, HeaderFromExpression}
+	wantedHeaders := []string{HeaderPluginID, HeaderDatasourceUID, HeaderDashboardUID, HeaderPanelID, HeaderPanelPluginId, HeaderQueryGroupID, HeaderFromExpression}
 
 	for k, v := range c.cfg.Headers {
-		if headerInList(k, headerConsts) && len(v) > 0 {
+		if headerInList(k, wantedHeaders) && len(v) > 0 {
 			labels[cleanStringForLabelOrValue(k, true)] = cleanStringForLabelOrValue(v[0], false)
 		}
 	}

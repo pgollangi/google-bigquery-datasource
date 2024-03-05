@@ -49,8 +49,8 @@ func TestHeadersAsLabels(t *testing.T) {
 		{
 			"invalid characters in value",
 			map[string][]string{
-				HeaderPluginID:     {"teS%t-pl&ugin-ID"},
-				HeaderDashboardUID: {"Test_Da^^@shboard_Uid"},
+				HeaderPluginID:     {"teS%t-pl&ugin-ID"},      //cspell:disable-line
+				HeaderDashboardUID: {"Test_Da^^@shboard_Uid"}, //cspell:disable-line
 			},
 			map[string]string{
 				"x-plugin-id":     "test-plugin-id",
