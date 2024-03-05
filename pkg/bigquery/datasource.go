@@ -401,3 +401,41 @@ func parseConnectionArgs(queryArgs json.RawMessage) (*ConnectionArgs, error) {
 	}
 	return args, nil
 }
+
+type QueryModel struct {
+	sqlds.Query
+	ConnectionArgs ConnectionArgs `json:"connectionArgs"`
+	Location       string `json:"location"`
+	Dataset        string `json:"dataset"`
+	Table          string `json:"table"`
+}
+
+// Mutates the request to add the connection args to the query if they are set in the model. (This happens only in alerting)
+func (h *BigQueryDatasource) MutateQuery(ctx context.Context, req backend.DataQuery) (context.Context, backend.DataQuery) {
+	query := &QueryModel{}
+	err := json.Unmarshal(req.JSON, query)
+	if err != nil {
+		log.DefaultLogger.Warn("Failed to parse request JSON", "error", err)
+		return ctx, req
+	}
+	if query.Dataset != "" {
+        query.ConnectionArgs.Dataset = query.Dataset
+    }
+    if query.Table != "" {
+        query.ConnectionArgs.Table = query.Table
+    }
+    if query.Location != "" {
+        query.ConnectionArgs.Location = query.Location
+    }
+
+	if query.ConnectionArgs.Dataset == "" && query.ConnectionArgs.Table == "" && query.ConnectionArgs.Location == "" {
+		return ctx, req
+	}
+
+	req.JSON, err = json.Marshal(query)
+	if err != nil {
+		log.DefaultLogger.Warn("Failed to marshal query", "error", err)
+	}
+
+	return ctx, req
+}

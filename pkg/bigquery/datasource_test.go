@@ -336,3 +336,73 @@ func newTestCallResourceResponseSender() *testCallResourceResponseSender {
 func (s *testCallResourceResponseSender) Send(_ *backend.CallResourceResponse) error {
 	return nil
 }
+
+func Test_MutateQuery(t *testing.T) {
+	h := &BigQueryDatasource{}
+
+	t.Run("mutates query with dataset", func(t *testing.T) {
+		ctx := context.Background()
+		req := backend.DataQuery{
+			JSON: []byte(`{"dataset": "myDataset"}`),
+		}
+
+		_, newReq := h.MutateQuery(ctx, req)
+
+		query := &QueryModel{}
+		err := json.Unmarshal(newReq.JSON, query)
+		assert.Nil(t, err)
+		assert.Equal(t, "myDataset", query.ConnectionArgs.Dataset)
+	})
+
+	t.Run("mutates query with table", func(t *testing.T) {
+		ctx := context.Background()
+		req := backend.DataQuery{
+			JSON: []byte(`{"table": "myTable"}`),
+		}
+
+		_, newReq := h.MutateQuery(ctx, req)
+
+		query := &QueryModel{}
+		err := json.Unmarshal(newReq.JSON, query)
+		assert.Nil(t, err)
+		assert.Equal(t, "myTable", query.ConnectionArgs.Table)
+	})
+
+	t.Run("mutates query with location", func(t *testing.T) {
+		ctx := context.Background()
+		req := backend.DataQuery{
+			JSON: []byte(`{"location": "us-west1"}`),
+		}
+
+		_, newReq := h.MutateQuery(ctx, req)
+
+		query := &QueryModel{}
+		err := json.Unmarshal(newReq.JSON, query)
+		assert.Nil(t, err)
+		assert.Equal(t, "us-west1", query.ConnectionArgs.Location)
+	})
+
+	t.Run("does not mutate query without dataset, table, or location", func(t *testing.T) {
+		ctx := context.Background()
+		req := backend.DataQuery{
+			JSON: []byte(`{}`),
+		}
+
+		newCtx, newReq := h.MutateQuery(ctx, req)
+
+		assert.Equal(t, ctx, newCtx)
+		assert.Equal(t, req, newReq)
+	})
+
+	t.Run("handles JSON unmarshal error", func(t *testing.T) {
+		ctx := context.Background()
+		req := backend.DataQuery{
+			JSON: []byte(`{dataset "myDataset"}`),
+		}
+
+		newCtx, newReq := h.MutateQuery(ctx, req)
+
+		assert.Equal(t, ctx, newCtx)
+		assert.Equal(t, req, newReq)
+	})
+}
