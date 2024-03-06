@@ -139,7 +139,7 @@ func (s *BigQueryDatasource) Connect(ctx context.Context, config backend.DataSou
 			return nil, errors.WithMessage(err, "Failed to create http client")
 		}
 
-		bqClient, err := s.bqFactory(context.Background(), connectionSettings.Project, option.WithHTTPClient(client))
+		bqClient, err := s.bqFactory(context.Background(), connectionSettings.Project, option.WithHTTPClient(client), option.WithEndpoint(settings.Endpoint))
 		if err != nil {
 			return nil, errors.WithMessage(err, "Failed to create BigQuery client")
 		}

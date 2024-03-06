@@ -17,6 +17,7 @@ type BigQuerySettings struct {
 	Updated            time.Time
 	AuthenticationType string `json:"authenticationType"`
 	PrivateKeyPath     string `json:"privateKeyPath"`
+	Endpoint           string `json:"endpoint"`
 
 	// Saved in secure JSON
 	PrivateKey string `json:"-"`
